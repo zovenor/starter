@@ -12,6 +12,7 @@ import (
 	"github.com/zovenor/starter/internal/config"
 	"github.com/zovenor/starter/internal/executable"
 	"github.com/zovenor/starter/internal/keymap"
+	"github.com/zovenor/starter/internal/models/vars"
 )
 
 type MajorModel struct {
@@ -28,6 +29,8 @@ type MajorModel struct {
 	height, width int
 	currentTime   time.Time
 	username      string
+
+	varsModel *vars.VarsModel
 }
 
 func New() *MajorModel {
@@ -106,6 +109,7 @@ func (mm *MajorModel) doTick() tea.Cmd {
 
 func (mm *MajorModel) Init() tea.Cmd {
 	mm.setExecutableApps()
+	mm.varsModel = vars.New(mm.Config.Vars, mm, mm.keys, mm.help, mm.String())
 	return mm.doTick()
 }
 
@@ -133,12 +137,16 @@ func (mm *MajorModel) LastCursor() {
 	}
 }
 
+func (mm *MajorModel) String() string {
+	return fmt.Sprintf("%v %v", mm.Name, mm.Version)
+}
+
 func (mm *MajorModel) View() string {
 	var s string
 
 	timeView := fmt.Sprintf("%v", mm.currentTime.Format(time.Stamp))
 	timeView = fmt.Sprintf("%v  %v", mm.username, timeView)
-	s += fmt.Sprintf("%v %v", mm.Name, mm.Version)
+	s += mm.String()
 	s += strings.Repeat(" ", mm.width-len(s)-len(timeView))
 	s += timeView
 	s += "\n\n"
@@ -173,7 +181,7 @@ func (mm *MajorModel) CurrentExecApp() (*executable.ExecutableApp, error) {
 
 func (mm *MajorModel) RunExecApp(execApp *executable.ExecutableApp) tea.Cmd {
 	if !execApp.Disabled && execApp.Status() == executable.IsNotRunning {
-		go execApp.Run()
+		go execApp.Run(mm.varsModel.Vars)
 		return checkExecutableApp(execApp)
 	}
 	return nil
@@ -234,6 +242,8 @@ func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 			return mm, tea.Batch(cmds...)
+		case key.Matches(msg, mm.keys.Vars):
+			return mm.varsModel, nil
 		}
 
 	case UpdateExecAppMsg:
@@ -242,6 +252,7 @@ func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		mm.height = msg.Height
 		mm.width = msg.Width
 		mm.help.Width = msg.Width
+		mm.varsModel.Height = msg.Height
 	case TickMsg:
 		return mm, mm.doTick()
 	}

@@ -8,6 +8,13 @@ import (
 
 type Config struct {
 	ExecApps []ExecAppConfig `yaml:"exec_apps"`
+	Vars     []Var           `yaml:"vars"`
+}
+
+type Var struct {
+	Name     string `yaml:"name"`
+	Required bool   `yaml:"required"`
+	Hiden    bool   `yaml:"hiden"`
 }
 
 func New() *Config {

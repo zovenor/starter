@@ -2,12 +2,14 @@ package executable
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
 
 	"github.com/fatih/color"
 	"github.com/zovenor/starter/internal/config"
+	"github.com/zovenor/starter/internal/models/vars"
 )
 
 type Status uint8
@@ -64,7 +66,7 @@ func (execApp *ExecutableApp) Format(selected bool) string {
 		itemLine = color.New(color.FgHiBlack).Sprint(itemLine)
 	}
 	if selected {
-		itemLine = fmt.Sprintf(" > %v", itemLine)
+		itemLine = fmt.Sprintf(" ‣ %v", itemLine)
 	} else {
 		itemLine = fmt.Sprintf("   %v", itemLine)
 	}
@@ -72,10 +74,10 @@ func (execApp *ExecutableApp) Format(selected bool) string {
 	return itemLine
 }
 
-func (execApp *ExecutableApp) Run() {
+func (execApp *ExecutableApp) Run(vrs []*vars.VarWithValue) {
 	execApp.Log = "Running..."
 	execApp.SetStatus(Running)
-	err := execApp.runCmds()
+	err := execApp.runCmds(vrs)
 	if err != nil {
 		execApp.Log = err.Error()
 		execApp.SetStatus(WithError)
@@ -96,11 +98,12 @@ func (execApp *ExecutableApp) Stop() {
 	execApp.SetStatus(IsNotRunning)
 }
 
-func (execApp *ExecutableApp) runCmds() error {
+func (execApp *ExecutableApp) runCmds(vrs []*vars.VarWithValue) error {
 	for _, cmdString := range execApp.Cmds {
 		execApp.Log = cmdString
 		time.Sleep(time.Second)
-		cList := strings.Fields(cmdString)
+		newCmdString := cmdString
+		cList := strings.Fields(newCmdString)
 		if len(cList) == 0 {
 			return fmt.Errorf("len of command is zero")
 		}
@@ -110,34 +113,16 @@ func (execApp *ExecutableApp) runCmds() error {
 			args = cList[1:]
 		}
 		cmd := exec.Command(cAppString, args...)
+		for _, v := range vrs {
+			cmd.Env = append(os.Environ(), fmt.Sprintf("%v=%v", v.Name, v.Value))
+		}
 		output, err := cmd.CombinedOutput()
 		if err != nil {
+			cmd.Env = nil
 			return fmt.Errorf("%v (cmd: %v, output: %v)", err, cmdString, string(output))
 		}
+		cmd.Env = nil
 		execApp.Log = string(output)
-
-		// execApp.Log = cmdString
-		// time.Sleep(time.Second)
-		// cList := strings.Split(cmdString, " ")
-		// if len(cList) == 0 {
-		// 	return fmt.Errorf("len of command is zero")
-		// }
-		// cAppString := cList[0]
-		// args := make([]string, 0)
-		// if len(cList) > 1 {
-		// 	args = cList[1:]
-		// }
-		// cmd := exec.Command(cAppString, args...)
-		// if err := cmd.Run(); err != nil {
-		// 	b, err := cmd.Output()
-		// 	if err != nil {
-		// 		err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-		// 		return err
-		// 	}
-		// 	err = fmt.Errorf(string(b))
-		// 	err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-		// 	return err
-		// }
 	}
 	return nil
 }
@@ -161,28 +146,6 @@ func (execApp *ExecutableApp) stopCmds() error {
 			return fmt.Errorf("%v (cmd: %v, output: %v)", err, cmdString, string(output))
 		}
 		execApp.Log = string(output)
-		// execApp.Log = cmdString
-		// time.Sleep(time.Second)
-		// cList := strings.Split(cmdString, " ")
-		// if len(cList) == 0 {
-		// 	return fmt.Errorf("len of command is zero")
-		// }
-		// cAppString := cList[0]
-		// args := make([]string, 0)
-		// if len(cList) > 1 {
-		// 	args = cList[1:]
-		// }
-		// cmd := exec.Command(cAppString, args...)
-		// if err := cmd.Run(); err != nil {
-		// 	b, err := cmd.Output()
-		// 	if err != nil {
-		// 		err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-		// 		return err
-		// 	}
-		// 	err = fmt.Errorf(string(b))
-		// 	err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-		// 	return err
-		// }
 	}
 	return nil
 }

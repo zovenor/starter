@@ -13,6 +13,10 @@ type KeyMap struct {
 	StopAll key.Binding
 	Detach  key.Binding
 	Quit    key.Binding
+	Cancel  key.Binding
+	Vars    key.Binding
+	Edit    key.Binding
+	Enter   key.Binding
 }
 
 var Keys = KeyMap{
@@ -45,8 +49,24 @@ var Keys = KeyMap{
 		key.WithHelp("d", "detach/attach app"),
 	),
 	Quit: key.NewBinding(
-		key.WithKeys("q", "esc", "ctrl+c"),
-		key.WithHelp("q/esc/ctrl+c", "quit"),
+		key.WithKeys("q", "ctrl+c"),
+		key.WithHelp("q/ctrl+c", "quit"),
+	),
+	Cancel: key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "cancel"),
+	),
+	Vars: key.NewBinding(
+		key.WithKeys("v"),
+		key.WithHelp("v", "set vars"),
+	),
+	Edit: key.NewBinding(
+		key.WithKeys("e"),
+		key.WithHelp("e", "edit"),
+	),
+	Enter: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "enter"),
 	),
 }
 
