@@ -86,13 +86,37 @@ func (execApp *ExecutableApp) Run() {
 func (execApp *ExecutableApp) Stop() {
 	execApp.Log = "Stopping..."
 	execApp.SetStatus(Stopping)
-	time.Sleep(3 * time.Second)
+	err := execApp.stopCmds()
+	if err != nil {
+		execApp.Log = err.Error()
+	}
 	execApp.Log = ""
 	execApp.SetStatus(IsNotRunning)
 }
 
 func (execApp *ExecutableApp) runCmds() error {
 	for _, cmdString := range execApp.Cmds {
+		execApp.Log = cmdString
+		time.Sleep(time.Second)
+		cList := strings.Split(cmdString, " ")
+		if len(cList) == 0 {
+			return fmt.Errorf("len of command is zero")
+		}
+		cAppString := cList[0]
+		args := make([]string, 0)
+		if len(cList) > 1 {
+			args = cList[1:]
+		}
+		cmd := exec.Command(cAppString, args...)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (execApp *ExecutableApp) stopCmds() error {
+	for _, cmdString := range execApp.StopCmds {
 		execApp.Log = cmdString
 		time.Sleep(time.Second)
 		cList := strings.Split(cmdString, " ")
