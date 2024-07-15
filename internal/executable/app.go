@@ -57,6 +57,8 @@ func (execApp *ExecutableApp) Format(selected bool) string {
 			itemLine = color.New(color.FgGreen).Sprint(itemLine)
 		case WithError:
 			itemLine = color.New(color.FgRed).Sprint(itemLine)
+		case Stopping:
+			itemLine = color.New(color.FgYellow).Sprint(itemLine)
 		}
 	} else {
 		itemLine = color.New(color.FgHiBlack).Sprint(itemLine)

@@ -147,6 +147,7 @@ func (mm *MajorModel) View() string {
 	for _, execApp := range mm.ExecutableApps {
 		if execApp.Disabled && !separated {
 			s += "\nDetached:\n"
+			separated = true
 		}
 		s += execApp.Format(execApp.Index == mm.Cursor())
 	}
@@ -175,7 +176,7 @@ func (mm *MajorModel) RunExecApp(execApp *executable.ExecutableApp) tea.Cmd {
 }
 
 func (mm *MajorModel) StopExecApp(execApp *executable.ExecutableApp) tea.Cmd {
-	if !execApp.Disabled && (execApp.Status() == executable.Executed || execApp.Status() == executable.WithError) {
+	if !execApp.Disabled && (execApp.Status() == executable.Executed || execApp.Status() == executable.WithError || execApp.Status() == executable.IsNotRunning) {
 		go execApp.Stop()
 		return checkExecutableApp(execApp)
 	}
