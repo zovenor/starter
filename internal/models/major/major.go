@@ -154,7 +154,11 @@ func (mm *MajorModel) View() string {
 
 	keysView := mm.help.View(mm.keys)
 	keysView += "\n"
-	s += strings.Repeat("\n", mm.height-strings.Count(s, "\n")-strings.Count(keysView, "\n")-1)
+	rpt := mm.height - strings.Count(s, "\n") - strings.Count(keysView, "\n") - 1
+	if rpt < 0 {
+		rpt = 0
+	}
+	s += strings.Repeat("\n", rpt)
 	s += keysView
 
 	return s
