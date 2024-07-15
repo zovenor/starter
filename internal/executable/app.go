@@ -100,7 +100,7 @@ func (execApp *ExecutableApp) runCmds() error {
 	for _, cmdString := range execApp.Cmds {
 		execApp.Log = cmdString
 		time.Sleep(time.Second)
-		cList := strings.Split(cmdString, " ")
+		cList := strings.Fields(cmdString)
 		if len(cList) == 0 {
 			return fmt.Errorf("len of command is zero")
 		}
@@ -110,16 +110,34 @@ func (execApp *ExecutableApp) runCmds() error {
 			args = cList[1:]
 		}
 		cmd := exec.Command(cAppString, args...)
-		if err := cmd.Run(); err != nil {
-			b, err := cmd.Output()
-			if err != nil {
-				err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-				return err
-			}
-			err = fmt.Errorf(string(b))
-			err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-			return err
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("%v (cmd: %v, output: %v)", err, cmdString, string(output))
 		}
+		execApp.Log = string(output)
+
+		// execApp.Log = cmdString
+		// time.Sleep(time.Second)
+		// cList := strings.Split(cmdString, " ")
+		// if len(cList) == 0 {
+		// 	return fmt.Errorf("len of command is zero")
+		// }
+		// cAppString := cList[0]
+		// args := make([]string, 0)
+		// if len(cList) > 1 {
+		// 	args = cList[1:]
+		// }
+		// cmd := exec.Command(cAppString, args...)
+		// if err := cmd.Run(); err != nil {
+		// 	b, err := cmd.Output()
+		// 	if err != nil {
+		// 		err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
+		// 		return err
+		// 	}
+		// 	err = fmt.Errorf(string(b))
+		// 	err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
+		// 	return err
+		// }
 	}
 	return nil
 }
@@ -128,7 +146,7 @@ func (execApp *ExecutableApp) stopCmds() error {
 	for _, cmdString := range execApp.StopCmds {
 		execApp.Log = cmdString
 		time.Sleep(time.Second)
-		cList := strings.Split(cmdString, " ")
+		cList := strings.Fields(cmdString)
 		if len(cList) == 0 {
 			return fmt.Errorf("len of command is zero")
 		}
@@ -138,16 +156,33 @@ func (execApp *ExecutableApp) stopCmds() error {
 			args = cList[1:]
 		}
 		cmd := exec.Command(cAppString, args...)
-		if err := cmd.Run(); err != nil {
-			b, err := cmd.Output()
-			if err != nil {
-				err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-				return err
-			}
-			err = fmt.Errorf(string(b))
-			err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-			return err
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("%v (cmd: %v, output: %v)", err, cmdString, string(output))
 		}
+		execApp.Log = string(output)
+		// execApp.Log = cmdString
+		// time.Sleep(time.Second)
+		// cList := strings.Split(cmdString, " ")
+		// if len(cList) == 0 {
+		// 	return fmt.Errorf("len of command is zero")
+		// }
+		// cAppString := cList[0]
+		// args := make([]string, 0)
+		// if len(cList) > 1 {
+		// 	args = cList[1:]
+		// }
+		// cmd := exec.Command(cAppString, args...)
+		// if err := cmd.Run(); err != nil {
+		// 	b, err := cmd.Output()
+		// 	if err != nil {
+		// 		err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
+		// 		return err
+		// 	}
+		// 	err = fmt.Errorf(string(b))
+		// 	err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
+		// 	return err
+		// }
 	}
 	return nil
 }
