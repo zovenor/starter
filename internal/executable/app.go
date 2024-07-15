@@ -111,6 +111,11 @@ func (execApp *ExecutableApp) runCmds() error {
 		}
 		cmd := exec.Command(cAppString, args...)
 		if err := cmd.Run(); err != nil {
+			b, err := cmd.Output()
+			if err != nil {
+				return err
+			}
+			err = fmt.Errorf(string(b))
 			return err
 		}
 	}
@@ -132,6 +137,11 @@ func (execApp *ExecutableApp) stopCmds() error {
 		}
 		cmd := exec.Command(cAppString, args...)
 		if err := cmd.Run(); err != nil {
+			b, err := cmd.Output()
+			if err != nil {
+				return err
+			}
+			err = fmt.Errorf(string(b))
 			return err
 		}
 	}
