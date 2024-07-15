@@ -113,9 +113,11 @@ func (execApp *ExecutableApp) runCmds() error {
 		if err := cmd.Run(); err != nil {
 			b, err := cmd.Output()
 			if err != nil {
+				err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
 				return err
 			}
 			err = fmt.Errorf(string(b))
+			err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
 			return err
 		}
 	}
