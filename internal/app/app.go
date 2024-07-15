@@ -15,7 +15,7 @@ func New(configFilePath string) (*App, error) {
 	a.Version = "v0.0.1"
 	a.configFilePath = configFilePath
 	a.Config = config.New()
-	err := a.Config.ImportFromJsonFile(configFilePath)
+	err := a.Config.ImportFromYamlFile(configFilePath)
 	if err != nil {
 		return nil, err
 	}

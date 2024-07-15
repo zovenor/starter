@@ -24,7 +24,7 @@ func (flags *Flags) validate() error {
 		}
 	}
 	if flags.ConfigFilePath == "" {
-		flags.ConfigFilePath = path.Join(flags.HomeDir, ".starter/config.json")
+		flags.ConfigFilePath = path.Join(flags.HomeDir, ".starter/config.yaml")
 	}
 	return nil
 }

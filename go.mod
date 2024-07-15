@@ -7,6 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.26.6
 	github.com/fatih/color v1.16.0
 	github.com/zovenor/logging v1.0.10
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (

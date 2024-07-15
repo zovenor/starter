@@ -1,12 +1,13 @@
 package config
 
 import (
-	"encoding/json"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
-	ExecApps []ExecAppConfig `json:"exec_apps"`
+	ExecApps []ExecAppConfig `yaml:"exec_apps"`
 }
 
 func New() *Config {
@@ -14,30 +15,30 @@ func New() *Config {
 }
 
 type ExecAppConfig struct {
-	Name     string   `json:"name"`
-	Cmds     []string `json:"cmds"`
-	StopCmds []string `json:"stop_cmds"`
-	Disabled bool     `json:"disabled"`
+	Name     string   `yaml:"name"`
+	Cmds     []string `yaml:"cmds"`
+	StopCmds []string `yaml:"stop_cmds"`
+	Disabled bool     `yaml:"disabled"`
 }
 
-func (config *Config) ImportFromJsonFile(filepath string) error {
-	jsonBytes, err := os.ReadFile(filepath)
+func (config *Config) ImportFromYamlFile(filepath string) error {
+	filebytes, err := os.ReadFile(filepath)
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(jsonBytes, config)
+	err = yaml.Unmarshal(filebytes, config)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (config *Config) SaveToJsonFile(filepath string) error {
-	jsonBytes, err := json.Marshal(config)
+func (config *Config) SaveToYamlFile(filepath string) error {
+	filebytes, err := yaml.Marshal(config)
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(filepath, jsonBytes, 0644)
+	err = os.WriteFile(filepath, filebytes, 0644)
 	if err != nil {
 		return err
 	}

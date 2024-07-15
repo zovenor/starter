@@ -114,7 +114,7 @@ func (mm *MajorModel) RevertDisabled(index int) {
 		mm.Config.ExecApps[index].Disabled = !mm.Config.ExecApps[index].Disabled
 		mm.sortExecApps()
 	}
-	mm.Config.SaveToJsonFile(mm.ConfigFilePath)
+	mm.Config.SaveToYamlFile(mm.ConfigFilePath)
 }
 
 func (mm *MajorModel) Cursor() int {
