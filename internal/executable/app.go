@@ -110,22 +110,16 @@ func (execApp *ExecutableApp) runCmds() error {
 			args = cList[1:]
 		}
 		cmd := exec.Command(cAppString, args...)
-		// if err := cmd.Run(); err != nil {
-		// 	b, err := cmd.Output()
-		// 	if err != nil {
-		// 		err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-		// 		return err
-		// 	}
-		// 	err = fmt.Errorf(string(b))
-		// 	err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-		// 	return err
-		// }
-		outputBytes, err := cmd.Output()
-		if err != nil {
-			err = fmt.Errorf("%v (cmd: %v)", err.Error(), cmdString)
+		if err := cmd.Run(); err != nil {
+			b, err := cmd.Output()
+			if err != nil {
+				err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
+				return err
+			}
+			err = fmt.Errorf(string(b))
+			err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
 			return err
 		}
-		execApp.Log = string(outputBytes)
 	}
 	return nil
 }
@@ -144,23 +138,16 @@ func (execApp *ExecutableApp) stopCmds() error {
 			args = cList[1:]
 		}
 		cmd := exec.Command(cAppString, args...)
-		// if err := cmd.Run(); err != nil {
-		// 	b, err := cmd.Output()
-		// 	if err != nil {
-		// 		err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-		// 		return err
-		// 	}
-		// 	err = fmt.Errorf(string(b))
-		// 	err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
-		// 	return err
-		// }
-		outputBytes, err := cmd.Output()
-		if err != nil {
-			err = fmt.Errorf("%v (cmd: %v)", err.Error(), cmdString)
+		if err := cmd.Run(); err != nil {
+			b, err := cmd.Output()
+			if err != nil {
+				err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
+				return err
+			}
+			err = fmt.Errorf(string(b))
+			err = fmt.Errorf("%v (cmd: %v)", err, cmdString)
 			return err
 		}
-		execApp.Log = string(outputBytes)
-
 	}
 	return nil
 }
