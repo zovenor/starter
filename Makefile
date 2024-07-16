@@ -1,3 +1,6 @@
+build:
+	@go build -o ./bin/starter ./app/starter.go
+
 run:
 	@go run ./app/starter.go
 
