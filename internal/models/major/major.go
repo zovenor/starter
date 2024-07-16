@@ -195,10 +195,16 @@ func (mm *MajorModel) StopExecApp(execApp *executable.ExecutableApp) tea.Cmd {
 	return nil
 }
 
-func (mm *MajorModel) checkRequiredVar() (tea.Model, tea.Cmd) {
+func (mm *MajorModel) checkRequiredVar(withCmd tea.Cmd) (tea.Model, tea.Cmd) {
 	for _, vwv := range mm.varsModel.Vars {
 		if vwv.Required && vwv.Value == "" {
-			return mm.varsModel, nil
+			mm.varsModel.WithCmd = withCmd
+			return mm.varsModel, func() tea.Msg {
+				return tea.KeyMsg{
+					Type:  tea.KeyRunes,
+					Runes: []rune{'e'},
+				}
+			}
 		}
 	}
 	return nil, nil
@@ -224,7 +230,7 @@ func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			mm.RevertDisabled(execApp.Index)
 			return mm, nil
 		case key.Matches(msg, mm.keys.Run):
-			m, cmd := mm.checkRequiredVar()
+			m, cmd := mm.checkRequiredVar(func() tea.Msg { return msg })
 			if m != nil {
 				return m, cmd
 			}
@@ -240,7 +246,7 @@ func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return mm, mm.StopExecApp(currentExecApp)
 		case key.Matches(msg, mm.keys.RunAll):
-			m, cmd := mm.checkRequiredVar()
+			m, cmd := mm.checkRequiredVar(func() tea.Msg { return msg })
 			if m != nil {
 				return m, cmd
 			}

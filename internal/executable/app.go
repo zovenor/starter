@@ -75,6 +75,7 @@ func (execApp *ExecutableApp) Format(selected bool) string {
 }
 
 func (execApp *ExecutableApp) Run(vrs []*vars.VarWithValue) {
+	execApp.Stop()
 	execApp.Log = "Running..."
 	execApp.SetStatus(Running)
 	err := execApp.runCmds(vrs)

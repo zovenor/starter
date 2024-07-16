@@ -38,6 +38,7 @@ type VarsModel struct {
 	parentName     string
 	updatedValue   int
 	textInputModel *textinput.Model
+	WithCmd        tea.Cmd
 }
 
 func New(varsConfig []config.Var, parent tea.Model, keys keymap.KeyMap, helpModel help.Model, parentName string) *VarsModel {
@@ -111,6 +112,21 @@ func (vm *VarsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				value := vm.textInputModel.Value()
 				vm.Vars[vm.updatedValue].Value = value
 				vm.textInputModel = nil
+
+				if vm.updatedValue < len(vm.Vars)-1 {
+					vm.cursor++
+					return vm, func() tea.Msg {
+						return tea.KeyMsg{
+							Type:  tea.KeyRunes,
+							Runes: []rune(vm.keys.Edit.Keys()[0]),
+						}
+					}
+				}
+				if vm.WithCmd != nil {
+					cmd := vm.WithCmd
+					vm.WithCmd = nil
+					return vm.parent, cmd
+				}
 				vm.updatedValue = -1
 				return vm, nil
 			}
