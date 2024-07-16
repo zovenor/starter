@@ -195,6 +195,15 @@ func (mm *MajorModel) StopExecApp(execApp *executable.ExecutableApp) tea.Cmd {
 	return nil
 }
 
+func (mm *MajorModel) checkRequiredVar() (tea.Model, tea.Cmd) {
+	for _, vwv := range mm.varsModel.Vars {
+		if vwv.Required && vwv.Value == "" {
+			return mm.varsModel, nil
+		}
+	}
+	return nil, nil
+}
+
 func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -215,6 +224,10 @@ func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			mm.RevertDisabled(execApp.Index)
 			return mm, nil
 		case key.Matches(msg, mm.keys.Run):
+			m, cmd := mm.checkRequiredVar()
+			if m != nil {
+				return m, cmd
+			}
 			currentExecApp, err := mm.CurrentExecApp()
 			if err != nil {
 				return mm, nil
@@ -227,6 +240,10 @@ func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return mm, mm.StopExecApp(currentExecApp)
 		case key.Matches(msg, mm.keys.RunAll):
+			m, cmd := mm.checkRequiredVar()
+			if m != nil {
+				return m, cmd
+			}
 			cmds := make([]tea.Cmd, 0)
 			for _, execApp := range mm.ExecutableApps {
 				if cmd := mm.RunExecApp(execApp); cmd != nil {
@@ -245,7 +262,6 @@ func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, mm.keys.Vars):
 			return mm.varsModel, nil
 		}
-
 	case UpdateExecAppMsg:
 		return mm, checkExecutableApp(msg)
 	case tea.WindowSizeMsg:

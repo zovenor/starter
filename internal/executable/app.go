@@ -113,15 +113,17 @@ func (execApp *ExecutableApp) runCmds(vrs []*vars.VarWithValue) error {
 			args = cList[1:]
 		}
 		cmd := exec.Command(cAppString, args...)
+		lastEnv := cmd.Env
+		cmd.Env = append(cmd.Env, os.Environ()...)
 		for _, v := range vrs {
-			cmd.Env = append(os.Environ(), fmt.Sprintf("%v=%v", v.Name, v.Value))
+			cmd.Env = append(cmd.Env, fmt.Sprintf("%v=%v", v.Name, v.Value))
 		}
 		output, err := cmd.CombinedOutput()
 		if err != nil {
-			cmd.Env = nil
+			cmd.Env = lastEnv
 			return fmt.Errorf("%v (cmd: %v, output: %v)", err, cmdString, string(output))
 		}
-		cmd.Env = nil
+		cmd.Env = lastEnv
 		execApp.Log = string(output)
 	}
 	return nil
