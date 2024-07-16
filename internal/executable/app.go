@@ -109,14 +109,17 @@ func (execApp *ExecutableApp) runCmds(vrs []*vars.VarWithValue) error {
 		execApp.Log = cmdString
 		time.Sleep(time.Second)
 		newCmdString := cmdString
+		newCmdString = strings.ReplaceAll(newCmdString, "~", user.HomeDir)
+		newCmdString = strings.ReplaceAll(newCmdString, "$HOME", user.HomeDir)
 		cList := strings.Fields(newCmdString)
 		if len(cList) == 0 {
 			return fmt.Errorf("len of command is zero")
 		}
-		args := make([]string, 0, len(cList)+4)
-		args = append(args, "-u", user.Username, "bash", "-c")
-		args = append(args, fmt.Sprintf("'<<EOF\n%v\nEOF'", cmdString))
-		cmd := exec.Command("sudo", args...)
+		args := make([]string, 0)
+		if len(cList) > 1 {
+			args = cList[1:]
+		}
+		cmd := exec.Command(cList[0], args...)
 
 		lastEnv := cmd.Env
 		cmd.Env = append(cmd.Env, os.Environ()...)
@@ -126,7 +129,7 @@ func (execApp *ExecutableApp) runCmds(vrs []*vars.VarWithValue) error {
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			cmd.Env = lastEnv
-			return fmt.Errorf("%v (cmd: %v, output: %v)", err, cmdString, string(output))
+			return fmt.Errorf("%v (cmd: %v, output: %v)", err, newCmdString, string(output))
 		}
 		cmd.Env = lastEnv
 		execApp.Log = string(output)
@@ -142,17 +145,21 @@ func (execApp *ExecutableApp) stopCmds() error {
 	for _, cmdString := range execApp.StopCmds {
 		execApp.Log = cmdString
 		time.Sleep(time.Second)
-		cList := strings.Fields(cmdString)
+		newCmdString := cmdString
+		newCmdString = strings.ReplaceAll(newCmdString, "~", user.HomeDir)
+		newCmdString = strings.ReplaceAll(newCmdString, "$HOME", user.HomeDir)
+		cList := strings.Fields(newCmdString)
 		if len(cList) == 0 {
 			return fmt.Errorf("len of command is zero")
 		}
-		args := make([]string, 0, len(cList)+4)
-		args = append(args, "-u", user.Username, "bash", "-c")
-		args = append(args, fmt.Sprintf("'<<EOF\n%v\nEOF'", cmdString))
-		cmd := exec.Command("sudo", args...)
+		args := make([]string, 0)
+		if len(cList) > 1 {
+			args = cList[1:]
+		}
+		cmd := exec.Command(cList[0], args...)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("%v (cmd: %v, output: %v)", err, cmdString, string(output))
+			return fmt.Errorf("%v (cmd: %v, output: %v)", err, newCmdString, string(output))
 		}
 		execApp.Log = string(output)
 	}
