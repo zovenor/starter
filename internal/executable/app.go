@@ -115,7 +115,7 @@ func (execApp *ExecutableApp) runCmds(vrs []*vars.VarWithValue) error {
 		}
 		args := make([]string, 0, len(cList)+4)
 		args = append(args, "-u", user.Username, "bash", "-c")
-		args = append(args, cList...)
+		args = append(args, fmt.Sprintf("'<<EOF\n%v\nEOF'", cmdString))
 		cmd := exec.Command("sudo", args...)
 
 		lastEnv := cmd.Env
@@ -148,7 +148,7 @@ func (execApp *ExecutableApp) stopCmds() error {
 		}
 		args := make([]string, 0, len(cList)+4)
 		args = append(args, "-u", user.Username, "bash", "-c")
-		args = append(args, cList...)
+		args = append(args, fmt.Sprintf("'<<EOF\n%v\nEOF'", cmdString))
 		cmd := exec.Command("sudo", args...)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
