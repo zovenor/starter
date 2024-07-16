@@ -9,10 +9,10 @@ type App struct {
 	configFilePath string
 }
 
-func New(configFilePath string) (*App, error) {
+func New(configFilePath, name, version string) (*App, error) {
 	a := new(App)
-	a.Name = "Starter"
-	a.Version = "v0.0.1"
+	a.Name = name
+	a.Version = version
 	a.configFilePath = configFilePath
 	a.Config = config.New()
 	err := a.Config.ImportFromYamlFile(configFilePath)
