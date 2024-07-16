@@ -24,10 +24,13 @@ func main() {
 
 	a, err := app.New(fl.ConfigFilePath, name, version)
 	if err != nil {
-		panic(err)
+		logging.Fatal(err)
+		os.Exit(1)
 	}
 
 	if err := a.Run(); err != nil {
-		panic(err)
+		logging.Fatal(err)
+		os.Exit(1)
+
 	}
 }
