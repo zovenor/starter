@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"os/user"
 	"strings"
 	"time"
 
@@ -100,6 +101,10 @@ func (execApp *ExecutableApp) Stop() {
 }
 
 func (execApp *ExecutableApp) runCmds(vrs []*vars.VarWithValue) error {
+	user, err := user.Current()
+	if err != nil {
+		return fmt.Errorf("error related to get currect user: %v", err.Error())
+	}
 	for _, cmdString := range execApp.Cmds {
 		execApp.Log = cmdString
 		time.Sleep(time.Second)
@@ -108,12 +113,11 @@ func (execApp *ExecutableApp) runCmds(vrs []*vars.VarWithValue) error {
 		if len(cList) == 0 {
 			return fmt.Errorf("len of command is zero")
 		}
-		cAppString := cList[0]
-		args := make([]string, 0)
-		if len(cList) > 1 {
-			args = cList[1:]
-		}
-		cmd := exec.Command(cAppString, args...)
+		args := make([]string, 0, len(cList)+4)
+		args = append(args, "-u", user.Username, "bash", "-c")
+		args = append(args, cList...)
+		cmd := exec.Command("sudo", args...)
+
 		lastEnv := cmd.Env
 		cmd.Env = append(cmd.Env, os.Environ()...)
 		for _, v := range vrs {
@@ -131,6 +135,10 @@ func (execApp *ExecutableApp) runCmds(vrs []*vars.VarWithValue) error {
 }
 
 func (execApp *ExecutableApp) stopCmds() error {
+	user, err := user.Current()
+	if err != nil {
+		return fmt.Errorf("error related to get currect user: %v", err.Error())
+	}
 	for _, cmdString := range execApp.StopCmds {
 		execApp.Log = cmdString
 		time.Sleep(time.Second)
@@ -138,12 +146,10 @@ func (execApp *ExecutableApp) stopCmds() error {
 		if len(cList) == 0 {
 			return fmt.Errorf("len of command is zero")
 		}
-		cAppString := cList[0]
-		args := make([]string, 0)
-		if len(cList) > 1 {
-			args = cList[1:]
-		}
-		cmd := exec.Command(cAppString, args...)
+		args := make([]string, 0, len(cList)+4)
+		args = append(args, "-u", user.Username, "bash", "-c")
+		args = append(args, cList...)
+		cmd := exec.Command("sudo", args...)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("%v (cmd: %v, output: %v)", err, cmdString, string(output))
