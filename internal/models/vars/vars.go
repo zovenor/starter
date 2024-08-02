@@ -141,7 +141,9 @@ func (vm *VarsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, vm.keys.Quit):
 			return vm, tea.Quit
 		case key.Matches(msg, vm.keys.Cancel):
-			return vm.parent, nil
+			cmd := vm.WithCmd
+			vm.WithCmd = nil
+			return vm.parent, cmd
 		case key.Matches(msg, vm.keys.Up):
 			if vm.cursor > 0 {
 				vm.cursor--

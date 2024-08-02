@@ -100,7 +100,7 @@ func (mm *MajorModel) setExecutableApps() {
 
 type TickMsg time.Time
 
-func (mm *MajorModel) doTick() tea.Cmd {
+func (mm *MajorModel) DoTick() tea.Cmd {
 	return tea.Tick(time.Second, func(ct time.Time) tea.Msg {
 		mm.currentTime = ct
 		return TickMsg(ct)
@@ -116,7 +116,7 @@ func (mm *MajorModel) Init() tea.Cmd {
 			cmds = append(cmds, cmd)
 		}
 	}
-	cmds = append(cmds, mm.doTick())
+	cmds = append(cmds, mm.DoTick())
 	return tea.Batch(cmds...)
 }
 
@@ -201,7 +201,6 @@ func (mm *MajorModel) CheckExecApp(execApp *executable.ExecutableApp, timeout ti
 			time.Sleep(timeout)
 		}
 	}()
-	return checkExecutableApp(execApp)
 	return nil
 }
 
@@ -213,7 +212,7 @@ func (mm *MajorModel) StopExecApp(execApp *executable.ExecutableApp) tea.Cmd {
 func (mm *MajorModel) checkRequiredVar(withCmd tea.Cmd) (tea.Model, tea.Cmd) {
 	for _, vwv := range mm.varsModel.Vars {
 		if vwv.Required && vwv.Value == "" {
-			mm.varsModel.WithCmd = withCmd
+			mm.varsModel.WithCmd = tea.Batch(withCmd, mm.DoTick())
 			return mm.varsModel, func() tea.Msg {
 				return tea.KeyMsg{
 					Type:  tea.KeyRunes,
@@ -281,6 +280,7 @@ func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return mm, tea.Batch(cmds...)
 		case key.Matches(msg, mm.keys.Vars):
+			mm.varsModel.WithCmd = mm.DoTick()
 			return mm.varsModel, nil
 		case key.Matches(msg, mm.keys.Check):
 			cmds := make([]tea.Cmd, 0)
@@ -300,7 +300,7 @@ func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		mm.help.Width = msg.Width
 		mm.varsModel.Height = msg.Height
 	case TickMsg:
-		return mm, mm.doTick()
+		return mm, mm.DoTick()
 	}
 
 	return mm, nil
