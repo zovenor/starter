@@ -78,6 +78,9 @@ func (execApp *ExecutableApp) Format(selected bool) string {
 }
 
 func (execApp *ExecutableApp) Run(vrs []*vars.VarWithValue) {
+	if execApp.Disabled {
+		return
+	}
 	execApp.Stop()
 	execApp.Log = "Running..."
 	execApp.SetStatus(Running)
@@ -92,6 +95,9 @@ func (execApp *ExecutableApp) Run(vrs []*vars.VarWithValue) {
 }
 
 func (execApp *ExecutableApp) Stop() {
+	if execApp.Disabled {
+		return
+	}
 	execApp.Log = "Stopping..."
 	execApp.SetStatus(Stopping)
 	err := execApp.stopCmds()
@@ -169,6 +175,9 @@ func (execApp *ExecutableApp) stopCmds() error {
 }
 
 func (execApp *ExecutableApp) Check() error {
+	if execApp.Disabled {
+		return nil
+	}
 	if execApp.Log == CheckingLog {
 		return nil
 	}

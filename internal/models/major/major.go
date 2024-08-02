@@ -187,34 +187,26 @@ func (mm *MajorModel) CurrentExecApp() (*executable.ExecutableApp, error) {
 }
 
 func (mm *MajorModel) RunExecApp(execApp *executable.ExecutableApp) tea.Cmd {
-	if !execApp.Disabled && execApp.Status() == executable.IsNotRunning {
-		go execApp.Run(mm.varsModel.Vars)
-		return checkExecutableApp(execApp)
-	}
+	go execApp.Run(mm.varsModel.Vars)
 	return nil
 }
 
 func (mm *MajorModel) CheckExecApp(execApp *executable.ExecutableApp, timeout time.Duration) tea.Cmd {
-	if !execApp.Disabled {
-		go func() {
-			for {
-				execApp.Check()
-				if timeout == 0 {
-					return
-				}
-				time.Sleep(timeout)
+	go func() {
+		for {
+			execApp.Check()
+			if timeout == 0 {
+				return
 			}
-		}()
-		return checkExecutableApp(execApp)
-	}
+			time.Sleep(timeout)
+		}
+	}()
+	return checkExecutableApp(execApp)
 	return nil
 }
 
 func (mm *MajorModel) StopExecApp(execApp *executable.ExecutableApp) tea.Cmd {
-	if !execApp.Disabled && (execApp.Status() == executable.Executed || execApp.Status() == executable.WithError || execApp.Status() == executable.IsNotRunning) {
-		go execApp.Stop()
-		return checkExecutableApp(execApp)
-	}
+	go execApp.Stop()
 	return nil
 }
 
