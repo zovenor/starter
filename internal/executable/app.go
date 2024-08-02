@@ -188,6 +188,7 @@ func (execApp *ExecutableApp) Check() error {
 	if err != nil {
 		return fmt.Errorf("error related to get currect user: %v", err.Error())
 	}
+	execApp.SetStatus(Running)
 	execApp.Log = CheckingLog
 	time.Sleep(time.Second)
 	newCmdString := execApp.CheckCmd
