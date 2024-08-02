@@ -190,7 +190,7 @@ func (execApp *ExecutableApp) Check() error {
 	cmd := exec.Command(cList[0], args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		execApp.Log = string(output)
+		execApp.Log = fmt.Sprintf("Output: %s, Error: %s", output, err.Error())
 		execApp.SetStatus(WithError)
 	} else {
 		execApp.Log = "Executed"
