@@ -23,6 +23,8 @@ const (
 	Stopping
 )
 
+const CheckingLog = "Checking..."
+
 type ExecutableApp struct {
 	config.ExecAppConfig
 
@@ -167,6 +169,9 @@ func (execApp *ExecutableApp) stopCmds() error {
 }
 
 func (execApp *ExecutableApp) Check() error {
+	if execApp.Log == CheckingLog {
+		return nil
+	}
 	if execApp.CheckCmd == "" {
 		return nil
 	}
@@ -174,7 +179,7 @@ func (execApp *ExecutableApp) Check() error {
 	if err != nil {
 		return fmt.Errorf("error related to get currect user: %v", err.Error())
 	}
-	execApp.Log = "Checking..."
+	execApp.Log = CheckingLog
 	time.Sleep(time.Second)
 	newCmdString := execApp.CheckCmd
 	newCmdString = strings.ReplaceAll(newCmdString, "~", user.HomeDir)

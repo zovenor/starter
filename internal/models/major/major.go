@@ -112,7 +112,7 @@ func (mm *MajorModel) Init() tea.Cmd {
 	mm.varsModel = vars.New(mm.Config.Vars, mm, mm.keys, mm.help, mm.String())
 	cmds := make([]tea.Cmd, 0)
 	for _, execApp := range mm.ExecutableApps {
-		if cmd := mm.CheckExecApp(execApp); cmd != nil {
+		if cmd := mm.CheckExecApp(execApp, 10*time.Second); cmd != nil {
 			cmds = append(cmds, cmd)
 		}
 	}
@@ -194,9 +194,17 @@ func (mm *MajorModel) RunExecApp(execApp *executable.ExecutableApp) tea.Cmd {
 	return nil
 }
 
-func (mm *MajorModel) CheckExecApp(execApp *executable.ExecutableApp) tea.Cmd {
+func (mm *MajorModel) CheckExecApp(execApp *executable.ExecutableApp, timeout time.Duration) tea.Cmd {
 	if !execApp.Disabled {
-		go execApp.Check()
+		go func() {
+			for {
+				execApp.Check()
+				if timeout == 0 {
+					return
+				}
+				time.Sleep(timeout)
+			}
+		}()
 		return checkExecutableApp(execApp)
 	}
 	return nil
@@ -285,7 +293,7 @@ func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, mm.keys.Check):
 			cmds := make([]tea.Cmd, 0)
 			for _, execApp := range mm.ExecutableApps {
-				if cmd := mm.CheckExecApp(execApp); cmd != nil {
+				if cmd := mm.CheckExecApp(execApp, 0); cmd != nil {
 					cmds = append(cmds, cmd)
 				}
 			}
