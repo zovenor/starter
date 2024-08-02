@@ -26,6 +26,7 @@ type ExecAppConfig struct {
 	Cmds     []string `yaml:"cmds"`
 	StopCmds []string `yaml:"stop_cmds"`
 	Disabled bool     `yaml:"disabled"`
+	CheckCmd string   `yaml:"check_cmd"`
 }
 
 func (config *Config) ImportFromYamlFile(filepath string) error {

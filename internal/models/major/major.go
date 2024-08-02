@@ -110,7 +110,14 @@ func (mm *MajorModel) doTick() tea.Cmd {
 func (mm *MajorModel) Init() tea.Cmd {
 	mm.setExecutableApps()
 	mm.varsModel = vars.New(mm.Config.Vars, mm, mm.keys, mm.help, mm.String())
-	return mm.doTick()
+	cmds := make([]tea.Cmd, 0)
+	for _, execApp := range mm.ExecutableApps {
+		if cmd := mm.CheckExecApp(execApp); cmd != nil {
+			cmds = append(cmds, cmd)
+		}
+	}
+	cmds = append(cmds, mm.doTick())
+	return tea.Batch(cmds...)
 }
 
 func (mm *MajorModel) RevertDisabled(index int) {
@@ -182,6 +189,14 @@ func (mm *MajorModel) CurrentExecApp() (*executable.ExecutableApp, error) {
 func (mm *MajorModel) RunExecApp(execApp *executable.ExecutableApp) tea.Cmd {
 	if !execApp.Disabled && execApp.Status() == executable.IsNotRunning {
 		go execApp.Run(mm.varsModel.Vars)
+		return checkExecutableApp(execApp)
+	}
+	return nil
+}
+
+func (mm *MajorModel) CheckExecApp(execApp *executable.ExecutableApp) tea.Cmd {
+	if !execApp.Disabled {
+		go execApp.Check()
 		return checkExecutableApp(execApp)
 	}
 	return nil
@@ -267,6 +282,15 @@ func (mm *MajorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return mm, tea.Batch(cmds...)
 		case key.Matches(msg, mm.keys.Vars):
 			return mm.varsModel, nil
+		case key.Matches(msg, mm.keys.Check):
+			cmds := make([]tea.Cmd, 0)
+			for _, execApp := range mm.ExecutableApps {
+				if cmd := mm.CheckExecApp(execApp); cmd != nil {
+					cmds = append(cmds, cmd)
+				}
+			}
+			return mm, tea.Batch(cmds...)
+
 		}
 	case UpdateExecAppMsg:
 		return mm, checkExecutableApp(msg)

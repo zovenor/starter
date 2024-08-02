@@ -165,3 +165,36 @@ func (execApp *ExecutableApp) stopCmds() error {
 	}
 	return nil
 }
+
+func (execApp *ExecutableApp) Check() error {
+	if execApp.CheckCmd == "" {
+		return nil
+	}
+	user, err := user.Current()
+	if err != nil {
+		return fmt.Errorf("error related to get currect user: %v", err.Error())
+	}
+	execApp.Log = "Checking..."
+	time.Sleep(time.Second)
+	newCmdString := execApp.CheckCmd
+	newCmdString = strings.ReplaceAll(newCmdString, "~", user.HomeDir)
+	newCmdString = strings.ReplaceAll(newCmdString, "$HOME", user.HomeDir)
+	cList := strings.Fields(newCmdString)
+	if len(cList) == 0 {
+		return fmt.Errorf("len of command is zero")
+	}
+	args := make([]string, 0)
+	if len(cList) > 1 {
+		args = cList[1:]
+	}
+	cmd := exec.Command(cList[0], args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		execApp.Log = string(output)
+		execApp.SetStatus(WithError)
+	} else {
+		execApp.Log = "Executed"
+		execApp.SetStatus(Executed)
+	}
+	return nil
+}

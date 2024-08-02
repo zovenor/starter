@@ -17,6 +17,7 @@ type KeyMap struct {
 	Vars    key.Binding
 	Edit    key.Binding
 	Enter   key.Binding
+	Check   key.Binding
 }
 
 var Keys = KeyMap{
@@ -67,6 +68,10 @@ var Keys = KeyMap{
 	Enter: key.NewBinding(
 		key.WithKeys("enter"),
 		key.WithHelp("enter", "enter"),
+	),
+	Check: key.NewBinding(
+		key.WithKeys("c"),
+		key.WithHelp("c", "check executable app"),
 	),
 }
 
