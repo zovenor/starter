@@ -51,7 +51,9 @@ func (execApp *ExecutableApp) PreviousStatus() Status {
 func (execApp *ExecutableApp) Format(selected bool) string {
 	itemLine := fmt.Sprintf("○ %v", execApp.Name)
 	if execApp.Log != "" {
-		itemLine += fmt.Sprintf(": %v", execApp.Log)
+		log := execApp.Log
+		log = strings.ReplaceAll(log, "\n", " ")
+		itemLine += fmt.Sprintf(": %v", log)
 	}
 
 	if !execApp.Disabled {
