@@ -121,10 +121,8 @@ func (mm *MajorModel) Init() tea.Cmd {
 }
 
 func (mm *MajorModel) RevertDisabled(index int) {
-	if mm.ExecutableApps[index].Status() == executable.IsNotRunning {
-		mm.Config.ExecApps[index].Disabled = !mm.Config.ExecApps[index].Disabled
-		mm.sortExecApps()
-	}
+	mm.Config.ExecApps[index].Disabled = !mm.Config.ExecApps[index].Disabled
+	mm.sortExecApps()
 	mm.Config.SaveToYamlFile(mm.ConfigFilePath)
 }
 
